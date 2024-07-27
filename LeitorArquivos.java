@@ -9,43 +9,43 @@ public class LeitorArquivos {
     // Mapas para opcodes e registradores
     private static final Map<String, String> opcodes = new HashMap<>();
     private static final Map<String, String> functs = new HashMap<>();
-    private static final Map<String, String> registers = new HashMap<>();
+    private static final Map<String, String> registradores = new HashMap<>();
 
     static {
         // Inicialização dos opcodes
-        opcodes.put("lw", "100011");
-        opcodes.put("sw", "101011");
-        opcodes.put("add", "000000");
-        opcodes.put("mult", "000000");
-        opcodes.put("srl", "000000");
-        opcodes.put("sll", "000000");
-        opcodes.put("addi", "001000");
-        opcodes.put("ori", "001101");
+        opcodes.put("lw", "100011"); // Carregar palavra
+        opcodes.put("sw", "101011"); // Salvar palavra
+        opcodes.put("add", "000000"); // Adição
+        opcodes.put("mult", "000000"); // Multiplicação
+        opcodes.put("srl", "000000"); // Deslocamento lógico à direita
+        opcodes.put("sll", "000000"); // Deslocamento lógico à esquerda
+        opcodes.put("addi", "001000"); // Adição imediata
+        opcodes.put("ori", "001101"); // OU imediato
 
         // Inicialização dos códigos de função
-        functs.put("add", "100000");
-        functs.put("mult", "011000");
-        functs.put("srl", "000010");
-        functs.put("sll", "000000");
+        functs.put("add", "100000"); // Função para adição
+        functs.put("mult", "011000"); // Função para multiplicação
+        functs.put("srl", "000010"); // Função para deslocamento lógico à direita
+        functs.put("sll", "000000"); // Função para deslocamento lógico à esquerda
 
         // Inicialização dos registradores
-        registers.put("$zero", "00000");
-        registers.put("$t0", "01000");
-        registers.put("$t1", "01001");
-        registers.put("$t2", "01010");
-        registers.put("$t3", "01011");
-        registers.put("$t4", "01100");
-        registers.put("$t5", "01101");
-        registers.put("$t6", "01110");
-        registers.put("$t7", "01111");
-        registers.put("$s0", "10000");
-        registers.put("$s1", "10001");
-        registers.put("$s2", "10010");
-        registers.put("$s3", "10011");
-        registers.put("$s4", "10100");
-        registers.put("$s5", "10101");
-        registers.put("$s6", "10110");
-        registers.put("$s7", "10111");
+        registradores.put("$zero", "00000");
+        registradores.put("$t0", "01000");
+        registradores.put("$t1", "01001");
+        registradores.put("$t2", "01010");
+        registradores.put("$t3", "01011");
+        registradores.put("$t4", "01100");
+        registradores.put("$t5", "01101");
+        registradores.put("$t6", "01110");
+        registradores.put("$t7", "01111");
+        registradores.put("$s0", "10000");
+        registradores.put("$s1", "10001");
+        registradores.put("$s2", "10010");
+        registradores.put("$s3", "10011");
+        registradores.put("$s4", "10100");
+        registradores.put("$s5", "10101");
+        registradores.put("$s6", "10110");
+        registradores.put("$s7", "10111");
     }
 
     public static void main(String[] args) {
@@ -55,65 +55,70 @@ public class LeitorArquivos {
         for (String nomeArquivo : nomesArquivos) {
             try (Scanner scanner = new Scanner(new File(nomeArquivo))) {
                 System.out.println("\nConteúdo do arquivo " + nomeArquivo + ":");
+                // Leitura linha a linha do arquivo
                 while (scanner.hasNextLine()) {
                     String linha = scanner.nextLine();
-                    System.out.println(linha);
-                    String binario = converterParaBinario(linha);
-                    System.out.println(binario);
+                    System.out.println(linha); // Imprime a linha original
+                    String binario = converterParaBinario(linha); // Converte a linha para binário
+                    System.out.println(binario); // Imprime a linha em binário
                 }
             } catch (FileNotFoundException e) {
-                System.err.println("Erro: Arquivo não encontrado - " + nomeArquivo);
+                System.err.println("Arquivo não encontrado - " + nomeArquivo);
             }
         }
     }
 
     private static String converterParaBinario(String instrucao) {
+        // Divide a instrução em partes usando espaço, vírgula e parênteses como delimitadores
         String[] partes = instrucao.split("[ ,()]+");
-        String op = partes[0];
+        String op = partes[0]; // Operação
         String rs, rt, rd, shamt, imm;
         StringBuilder binario = new StringBuilder();
 
         switch (op) {
             case "lw":
             case "sw":
-                rt = registers.get(partes[1]);
-                imm = String.format("%16s", Integer.toBinaryString(Integer.parseInt(partes[2]))).replace(' ', '0');
-                rs = registers.get(partes[3]);
-                binario.append(opcodes.get(op)).append(rs).append(rt).append(imm);
+                rt = registradores.get(partes[1]); // Registrador de destino
+                imm = String.format("%16s", Integer.toBinaryString(Integer.parseInt(partes[2]))).replace(' ', '0'); // Imediato
+                rs = registradores.get(partes[3]); // Registrador base
+                binario.append(opcodes.get(op)).append(rs).append(rt).append(imm); // Monta a instrução binária
                 break;
             case "add":
             case "sll":
             case "srl":
-                rd = registers.get(partes[1]);
-                rs = registers.get(partes[2]);
+                rd = registradores.get(partes[1]); // Registrador de destino
+                rs = registradores.get(partes[2]); // Primeiro operando
                 if (op.equals("sll") || op.equals("srl")) {
-                    rt = registers.get(partes[1]);
-                    shamt = String.format("%5s", Integer.toBinaryString(Integer.parseInt(partes[3]))).replace(' ', '0');
-                    binario.append(opcodes.get(op)).append("00000").append(rt).append(rs).append(shamt).append(functs.get(op));
+                    rt = registradores.get(partes[3]); // Segundo operando
+                    shamt = String.format("%5s", Integer.toBinaryString(Integer.parseInt(partes[3]))).replace(' ', '0'); // Shift amount
+                    binario.append(opcodes.get(op)).append("00000").append(rt).append(rd).append(shamt).append(functs.get(op)); // Monta a instrução binária
                 } else {
-                    rt = registers.get(partes[3]);
-                    binario.append(opcodes.get(op)).append(rs).append(rt).append(rd).append("00000").append(functs.get(op));
+                    rt = registradores.get(partes[3]); // Segundo operando
+                    binario.append(opcodes.get(op)).append(rs).append(rt).append(rd).append("00000").append(functs.get(op)); // Monta a instrução binária
                 }
                 break;
             case "mult":
-                rs = registers.get(partes[1]);
-                rt = registers.get(partes[2]);
-                binario.append(opcodes.get(op)).append(rs).append(rt).append("0000000000").append(functs.get(op));
+                rs = registradores.get(partes[1]); // Primeiro operando
+                rt = registradores.get(partes[2]); // Segundo operando
+                binario.append(opcodes.get(op)).append(rs).append(rt).append("0000000000").append(functs.get(op)); // Monta a instrução binária
                 break;
             case "addi":
             case "ori":
-                rt = registers.get(partes[1]);
-                rs = registers.get(partes[2]);
-                imm = String.format("%16s", Integer.toBinaryString(Integer.parseInt(partes[3]))).replace(' ', '0');
-                if (imm.length() > 16) {
-                    imm = imm.substring(imm.length() - 16);
+                rt = registradores.get(partes[1]); // Registrador de destino
+                rs = registradores.get(partes[2]); // Registrador base
+                int valorImediato = Integer.parseInt(partes[3]);
+                if (valorImediato < 0) {
+                    imm = Integer.toBinaryString(valorImediato);
+                    imm = imm.substring(imm.length() - 16); // Pega os últimos 16 bits do valor imediato
+                } else {
+                    imm = String.format("%16s", Integer.toBinaryString(valorImediato)).replace(' ', '0'); // Imediato
                 }
-                binario.append(opcodes.get(op)).append(rs).append(rt).append(imm);
+                binario.append(opcodes.get(op)).append(rs).append(rt).append(imm); // Monta a instrução binária
                 break;
             default:
-                System.err.println("Erro: Instrução não reconhecida - " + instrucao);
+                System.err.println("Instrução não reconhecida - " + instrucao);
         }
 
-        return binario.toString();
+        return binario.toString(); // Retorna a instrução binária
     }
 }
