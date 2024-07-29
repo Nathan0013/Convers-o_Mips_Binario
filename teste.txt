@@ -1,0 +1,9 @@
+addi $t0, $t0, 5
+sub $s1, $s2, $s3
+beq $t1, $t2, label
+and $t2, $t3, $t4
+or $t2, $t3, $t4
+slt $t0, $s1, $s2
+xor $t0, $t1, $t2
+sw $t1, 32($s0)
+nor $t0, $t1, $t2
